@@ -11,7 +11,7 @@ const testBotToken = process.env.TG_TEST_BOT_TOKEN;
 // Бот уведомлений
 const noticeBotToken = process.env.TG_NOTICE_BOT_TOKEN;
 // Текущий бот погоды
-const currentToken = testBotToken;
+const currentToken = mainBotToken;
 
 // Диалог со мной
 const myChatId = process.env.MY_CHAT_ID;
