@@ -26,7 +26,7 @@ const options = { polling: true };
 const weatherBot = new TelegramBot(currentToken, options);
 const noticeBot = new TelegramBot(noticeBotToken, options);
 
-cron.schedule('03 30 * * *', function(){
+cron.schedule('30 03 * * *', function(){
     noticeBot.sendMessage(myChatId, `Отправил ${maksimovUserName} шобы вставал`);
     weatherBot.sendMessage(maksimovChatId, `Тип такого: "Вставай, заебал! :)"`);
 });
