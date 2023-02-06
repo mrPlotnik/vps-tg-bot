@@ -1,6 +1,7 @@
 
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
+const cron = require('node-cron');
 
 // Токен запроса погоды
 const weatherToken = process.env.WEATHER_TOKEN;
@@ -11,10 +12,13 @@ const testBotToken = process.env.TG_TEST_BOT_TOKEN;
 // Бот уведомлений
 const noticeBotToken = process.env.TG_NOTICE_BOT_TOKEN;
 // Текущий бот погоды
-const currentToken = mainBotToken;
+const currentToken = testBotToken;
 
 // Диалог со мной
 const myChatId = process.env.MY_CHAT_ID;
+// Максимов
+const maksimovUserName = process.env.MAKSIMOV_USER_NAME;
+const maksimovChatId = process.env.MAKSIMOV_CHAT_ID;
 
 // опции бота
 const options = { polling: true };
@@ -22,12 +26,20 @@ const options = { polling: true };
 const weatherBot = new TelegramBot(currentToken, options);
 const noticeBot = new TelegramBot(noticeBotToken, options);
 
+cron.schedule('03 30 * * *', function(){
+    noticeBot.sendMessage(myChatId, `Отправил ${maksimovUserName} шобы вставал`);
+    weatherBot.sendMessage(maksimovChatId, `Тип такого: "Вставай, заебал! :)"`);
+});
+
 weatherBot.on('message', async msg => {
-    // Текст сообщения
-    // Всегда приводим к нижнему регистру
+    // Текст сообщения. Всегда приводим к нижнему регистру
     const text = msg.text.toLowerCase();
+    // ID чата с пользователем
     const chatId = msg.chat.id;   
+    // Имя пользователя
     const first_name = msg.from.first_name;   
+
+    // username пользователя для моих уведомлений
     const username = msg.from.username;  
 
     weatherBot.setMyCommands([
@@ -36,7 +48,7 @@ weatherBot.on('message', async msg => {
     ]);
     
     if (text === '/start') {
-        noticeBot.sendMessage(myChatId, `Чел с ником @${username} стартанул бота погоды`);
+        noticeBot.sendMessage(myChatId, `Чел с ником @${username} ${chatId} стартанул бота погоды`);
         return weatherBot.sendMessage(chatId, `Дарова, ${first_name}! Этот бот показывает погоду в Юрге. Так-то! :)`)
     };
 
@@ -54,10 +66,10 @@ weatherBot.on('message', async msg => {
         const temp = data.fact.temp;
         const feels_like = data.fact.feels_like      
         
-        noticeBot.sendMessage(myChatId, `Чел с ником @${username} чекнул погоду`);
+        noticeBot.sendMessage(myChatId, `Чел с ником @${username} ${chatId} чекнул погоду`);
         return weatherBot.sendMessage(chatId, `Температура в Юрге ${temp}\nОщущается как ${feels_like}\n`)
     };
     
-    noticeBot.sendMessage(myChatId, `Чел с ником @${username} что-то написал боту погоды`);
+    noticeBot.sendMessage(myChatId, `Чел с ником @${username} ${chatId} что-то написал боту погоды`);
     weatherBot.sendMessage(chatId, `Я тебя не понимаю, используй команды!`);
 });
