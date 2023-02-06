@@ -20,16 +20,21 @@ const myChatId = process.env.MY_CHAT_ID;
 const maksimovUserName = process.env.MAKSIMOV_USER_NAME;
 const maksimovChatId = process.env.MAKSIMOV_CHAT_ID;
 
-// опции бота
+// Опции бота
 const options = { polling: true };
 
 // Запускаем ботов
 const weatherBot = new TelegramBot(currentToken, options);
 const noticeBot = new TelegramBot(noticeBotToken, options);
 
-cron.schedule('30 03 * * *', function(){
+cron.schedule('30 03 * * *', async function() {
+    const data = await getWeather();
+    const temp = data.temp;
+    const feels_like = data.feels_like;
+
     noticeBot.sendMessage(myChatId, `Отправил ${maksimovUserName} шобы вставал`);
-    weatherBot.sendMessage(maksimovChatId, `Тип такого: "Вставай, заебал! :)"`);
+    await weatherBot.sendMessage(myChatId, "Спишь? Вставай, ленивая жопа! :)");
+    await weatherBot.sendMessage(myChatId, `Температура в Юрге ${temp}\nОщущается как ${feels_like}\n`)
 });
 
 weatherBot.on('message', async msg => {
@@ -39,8 +44,6 @@ weatherBot.on('message', async msg => {
     const chatId = msg.chat.id;   
     // Имя пользователя
     const first_name = msg.from.first_name;   
-
-    console.log(text);
 
     // username пользователя для моих уведомлений
     const username = msg.from.username;  
