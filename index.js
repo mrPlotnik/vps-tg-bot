@@ -23,6 +23,7 @@ const maksimovChatId = process.env.MAKSIMOV_CHAT_ID;
 // опции бота
 const options = { polling: true };
 
+// Запускаем ботов
 const weatherBot = new TelegramBot(currentToken, options);
 const noticeBot = new TelegramBot(noticeBotToken, options);
 
@@ -32,12 +33,14 @@ cron.schedule('30 03 * * *', function(){
 });
 
 weatherBot.on('message', async msg => {
-    // Текст сообщения. Всегда приводим к нижнему регистру
-    const text = msg.text.toLowerCase();
+    // Текст сообщения. Приводим к нижнему регистру
+    const text = msg.text !== undefined ? msg.text.toLowerCase() : undefined;
     // ID чата с пользователем
     const chatId = msg.chat.id;   
     // Имя пользователя
     const first_name = msg.from.first_name;   
+
+    console.log(text);
 
     // username пользователя для моих уведомлений
     const username = msg.from.username;  
@@ -53,18 +56,9 @@ weatherBot.on('message', async msg => {
     };
 
     if (text === '/weather') {
-        const URL = 'https://api.weather.yandex.ru/v2/forecast?';
-        const lat = '55.703805325125415';
-        const lon = '84.90924910742024';
-        const lang = 'ru';
-        const apiUrl = await fetch(`${URL}lat=${lat}&lon=${lon}&lang=${lang}`, {
-            headers: { 'X-Yandex-API-Key': weatherToken }
-        })
-        
-        const data = await apiUrl.json();            
-
-        const temp = data.fact.temp;
-        const feels_like = data.fact.feels_like      
+        const data = await getWeather();
+        const temp = data.temp;
+        const feels_like = data.feels_like;
         
         noticeBot.sendMessage(myChatId, `Чел с ником @${username} ${chatId} чекнул погоду`);
         return weatherBot.sendMessage(chatId, `Температура в Юрге ${temp}\nОщущается как ${feels_like}\n`)
@@ -73,3 +67,20 @@ weatherBot.on('message', async msg => {
     noticeBot.sendMessage(myChatId, `Чел с ником @${username} ${chatId} что-то написал боту погоды`);
     weatherBot.sendMessage(chatId, `Я тебя не понимаю, используй команды!`);
 });
+
+async function getWeather() {
+    const URL = 'https://api.weather.yandex.ru/v2/forecast?';
+    const lat = '55.703805325125415';
+    const lon = '84.90924910742024';
+    const lang = 'ru';
+    const apiUrl = await fetch(`${URL}lat=${lat}&lon=${lon}&lang=${lang}`, {
+        headers: { 'X-Yandex-API-Key': weatherToken }
+    })
+    
+    const data = await apiUrl.json();            
+
+    const temp = data.fact.temp;
+    const feels_like = data.fact.feels_like;
+
+    return { temp, feels_like };
+}
