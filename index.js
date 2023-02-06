@@ -54,7 +54,7 @@ weatherBot.on('message', async msg => {
     ]);
     
     if (text === '/start') {
-        noticeBot.sendMessage(myChatId, `Чел с ником @${username} ${chatId} стартанул бота погоды`);
+        noticeBot.sendMessage(myChatId, `Чел с ником @${username}, chat_id = ${chatId}\nстартанул бота погоды`);
         return weatherBot.sendMessage(chatId, `Дарова, ${first_name}! Этот бот показывает погоду в Юрге. Так-то! :)`)
     };
 
@@ -63,11 +63,11 @@ weatherBot.on('message', async msg => {
         const temp = data.temp;
         const feels_like = data.feels_like;
         
-        noticeBot.sendMessage(myChatId, `Чел с ником @${username} ${chatId} чекнул погоду`);
+        noticeBot.sendMessage(myChatId, `Чел с ником @${username} чекнул погоду`);
         return weatherBot.sendMessage(chatId, `Температура в Юрге ${temp}\nОщущается как ${feels_like}\n`)
     };
     
-    noticeBot.sendMessage(myChatId, `Чел с ником @${username} ${chatId} что-то написал боту погоды`);
+    noticeBot.sendMessage(myChatId, `Чел с ником @${username} что-то написал боту погоды`);
     weatherBot.sendMessage(chatId, `Я тебя не понимаю, используй команды!`);
 });
 
