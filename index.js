@@ -33,8 +33,8 @@ cron.schedule('30 03 * * *', async function() {
     const feels_like = data.feels_like;
 
     noticeBot.sendMessage(myChatId, `Отправил ${maksimovUserName} шобы вставал`);
-    await weatherBot.sendMessage(myChatId, "Спишь? Вставай, ленивая жопа! :)");
-    await weatherBot.sendMessage(myChatId, `Температура в Юрге ${temp}\nОщущается как ${feels_like}\n`)
+    await weatherBot.sendMessage(maksimovChatId, "Спишь? Вставай, ленивая жопа! :)");
+    await weatherBot.sendMessage(maksimovChatId, `Температура в Юрге ${temp}\nОщущается как ${feels_like}\n`)
 });
 
 weatherBot.on('message', async msg => {
