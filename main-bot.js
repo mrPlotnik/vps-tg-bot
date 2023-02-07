@@ -7,12 +7,8 @@ const cron = require('node-cron');
 const weatherToken = process.env.WEATHER_TOKEN;
 // Основной бот погоды
 const mainBotToken = process.env.TG_MAIN_BOT_TOKEN;
-// Тестовый бот погоды
-const testBotToken = process.env.TG_TEST_BOT_TOKEN;
 // Бот уведомлений
 const noticeBotToken = process.env.TG_NOTICE_BOT_TOKEN;
-// Текущий бот погоды
-const currentToken = mainBotToken;
 
 // Диалог со мной
 const myChatId = process.env.MY_CHAT_ID;
@@ -24,7 +20,7 @@ const maksimovChatId = process.env.MAKSIMOV_CHAT_ID;
 const options = { polling: true };
 
 // Запускаем ботов
-const weatherBot = new TelegramBot(currentToken, options);
+const weatherBot = new TelegramBot(noticeBotToken, options);
 const noticeBot = new TelegramBot(noticeBotToken, options);
 
 cron.schedule('30 03 * * *', async function() {
