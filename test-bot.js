@@ -1,7 +1,6 @@
 
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
-const cron = require('node-cron');
 
 // Токен запроса погоды
 const weatherToken = process.env.WEATHER_TOKEN;
@@ -64,7 +63,7 @@ async function getWeather() {
         headers: { 'X-Yandex-API-Key': weatherToken }
     })
     
-    const data = await apiUrl.json();            
+    const data = await apiUrl.json();  
 
     const temp = data.fact.temp;
     const feels_like = data.fact.feels_like;

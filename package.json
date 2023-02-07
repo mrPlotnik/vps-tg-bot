@@ -1,10 +1,10 @@
 {
   "name": "tg-bot",
-  "version": "1.0.0",
+  "version": "1.0.1nv",
   "description": "",
   "main": "main-bot.js",
   "scripts": {
-    "test": "nodemon index.js",
+    "test": "nodemon test-bot.js",
     "main": "nodemon main-bot.js",
     "start": "node main-bot.js"
   },

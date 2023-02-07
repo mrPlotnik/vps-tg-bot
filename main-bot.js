@@ -20,7 +20,7 @@ const maksimovChatId = process.env.MAKSIMOV_CHAT_ID;
 const options = { polling: true };
 
 // Запускаем ботов
-const weatherBot = new TelegramBot(noticeBotToken, options);
+const weatherBot = new TelegramBot(mainBotToken, options);
 const noticeBot = new TelegramBot(noticeBotToken, options);
 
 cron.schedule('30 03 * * *', async function() {
