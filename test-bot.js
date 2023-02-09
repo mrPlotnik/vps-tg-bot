@@ -1,24 +1,32 @@
-
+// Библиотеки
 require('dotenv').config();
+const { VK } = require('vk-io');
 const TelegramBot = require('node-telegram-bot-api');
+
+const showDateOrTime =  require('./helpers/showDataOrTime');
 
 // Токен запроса погоды
 const weatherToken = process.env.WEATHER_TOKEN;
 
-// Тестовый бот погоды
+// Токен тестового telegram бота погоды
 const testBotToken = process.env.TG_TEST_BOT_TOKEN;
-// Бот уведомлений
+// Токен тестового telegram бота уведомлений
 const noticeTestBotToken = process.env.TG_NOTICE_TEST_BOT_TOKEN;
+// Токен VK Анохиной
+const vkAnohinaUserToken = process.env.VK_ANOHINA_USER_TOKEN
+// ID группы куплю/продам
+const vkGroupID = process.env.VK_GROUP_ID
 
-// Диалог со мной
+// Мой telegram
 const myChatId = process.env.MY_CHAT_ID;
 
-// Опции бота
+// Опции telegram ботов
 const options = { polling: true };
 
-// Запускаем ботов
+// Запускаем telegram ботов
 const weatherBot = new TelegramBot(testBotToken, options);
 const noticeBot = new TelegramBot(noticeTestBotToken, options);
+const vk = new VK({ token: vkAnohinaUserToken });
 
 weatherBot.on('message', async msg => {
     // Текст сообщения. Приводим к нижнему регистру
@@ -70,3 +78,49 @@ async function getWeather() {
 
     return { temp, feels_like };
 }
+
+
+
+let currentOffset = 0;
+
+vkPostGet();
+
+// Берем посты со стены группы VK 
+async function vkPostGet() {      
+    post = await vk.api.wall.get ({       
+        owner_id: vkGroupID, // идентификатор сообщества
+        offset: currentOffset, // смещение     
+        count: 1, // сколько записей получаем     
+        extended: 1, // доп поля
+    });        
+    
+    // Если это Анохина, 
+    if (post.profiles[0].id === 330397077) {                 
+        console.log(`${showDateOrTime.time()} Это ${post.profiles[0].last_name}, пропускаем`);  
+        // то смещаем подмножество и рекурсивно вызываем еще
+        currentOffset++;    
+        vkPostGet();              
+    }
+
+    const userID = post.profiles[0].id;
+    const firstName = post.profiles[0].first_name;
+    const lastName = post.profiles[0].last_name;
+    // const text = post.items[0].text;;
+    const attachPhotoLinks = getPhotoLinks();
+
+    console.log(attachPhotoLinks);
+
+    function getPhotoLinks() {
+        const attachPhoto = post.items[0].attachments.filter((e) => e.type === 'photo');
+        const sizes = attachPhoto.map((e) => e.photo.sizes.find((el) => el.type === 's').url);
+        return sizes;
+    } 
+       
+        
+
+    console.log(`${showDateOrTime.time()} userID = ${userID}`);
+    console.log(`${showDateOrTime.time()} firstName = ${firstName}`);
+    console.log(`${showDateOrTime.time()} lastName = ${lastName}`);
+    // console.log(`${showDateOrTime.time()} Текст = ${text}`);
+    // console.log(`${showDateOrTime.time()} Фотки = ${attachPhotoLinks}`);
+};
