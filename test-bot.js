@@ -1,9 +1,12 @@
 // Библиотеки
+const fs = require("fs");
 require('dotenv').config();
+const axios = require('axios').default;
 const { VK } = require('vk-io');
 const TelegramBot = require('node-telegram-bot-api');
 
 const showDateOrTime =  require('./helpers/showDataOrTime');
+const { url } = require("inspector");
 
 // Токен запроса погоды
 const weatherToken = process.env.WEATHER_TOKEN;
@@ -100,7 +103,15 @@ async function vkPostGet() {
         // то смещаем подмножество и рекурсивно вызываем еще
         currentOffset++;    
         vkPostGet();              
-    }
+    };
+
+    
+
+    // if (err) return console.log(err);
+    // fs.writeFile("hello.png", body, "binary", (err) => {
+    //     if (err) return console.log(err);
+    //     console.log("The file was saved!");
+    // });
 
     const userID = post.profiles[0].id;
     const firstName = post.profiles[0].first_name;
@@ -108,14 +119,28 @@ async function vkPostGet() {
     // const text = post.items[0].text;;
     const attachPhotoLinks = getPhotoLinks();
 
-    console.log(attachPhotoLinks);
-
     function getPhotoLinks() {
         const attachPhoto = post.items[0].attachments.filter((e) => e.type === 'photo');
-        const sizes = attachPhoto.map((e) => e.photo.sizes.find((el) => el.type === 's').url);
-        return sizes;
+        const links = attachPhoto.map((e) => e.photo.sizes.find((el) => el.type === 's').url);
+        return links;
     } 
+
+    function downloadFile(urls, path) {      
+        console.log(urls);
+        axios({
+            method: 'get',
+            url: urls,
+            responseType: 'stream'
+        })
+            .then(function (response) {
+                response.data.pipe(fs.createWriteStream('something.jpg'));
+            })
+            .catch(function (error) {                
+                console.log(error);
+            });
+    }
        
+    downloadFile(attachPhotoLinks[0], '1.jpg');
         
 
     console.log(`${showDateOrTime.time()} userID = ${userID}`);
