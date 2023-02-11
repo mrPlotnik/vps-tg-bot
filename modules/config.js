@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 // Токен запроса погоды
 const weatherToken = process.env.WEATHER_TOKEN;
 
