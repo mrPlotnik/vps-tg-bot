@@ -31,7 +31,8 @@ function tgPostBotRun() {
 
     });    
 
-    postBot.sendMessage(config.tgGrounID, 'Дарова');
+    postBot.sendMessage(config.tgGrounID, 'Дарова', { message_thread_id: 48});
+    // postBot.sendMessage(config.tgGrounID, 'Дарова', { message_id: 48});
     
     console.log(`${showDateOrTime.time()} Telegram бот постинга запущены...`);
 
