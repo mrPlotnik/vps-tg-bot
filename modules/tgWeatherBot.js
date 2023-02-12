@@ -66,10 +66,9 @@ function tgBotRun() {
         
     });
 
-    console.log(`${showDateOrTime.time()} Telegram боты запущены...`);
+    console.log(`${showDateOrTime.time()} Telegram бот погоды запущены...`);
 
-    return `${showDateOrTime.time()} Telegram бот что-то возврящает\n`;
-
+    return 'Telegram бот погоды что-то возврящает\n';
 }
 
 module.exports = tgBotRun;

@@ -5,14 +5,20 @@ const showDateOrTime = require('./helpers/showDataOrTime');
 
 // Бот VK
 const vkGetLastPost = require('./modules/vkGetLastPost.js')
-// Бот Telegram
+// Бот Telegram Погода
 const tgWeatherBot = require('./modules/tgWeatherBot.js')
+// Бот Telegram Постер
+const tgPostBot = require('./modules/tgPostBot.js')
 
 run();
 
 async function run() {
-    const tgBot = await tgWeatherBot();
-    console.log(tgBot);
+    
+    const tgWeatherBotData = await tgWeatherBot();
+    console.log(`${showDateOrTime.time()} ${tgWeatherBotData}`);
+
+    const tgPostBotData = await tgPostBot();
+    console.log(`${showDateOrTime.time()} ${tgPostBotData}`);
 
     const postData = await vkGetLastPost();
     console.log('');

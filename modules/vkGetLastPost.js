@@ -71,7 +71,7 @@ async function vkGetLastPost() {
         // Определяем ссылки файлов поста
         async function getPhotoLinks() {
             const attachPhoto = post.items[0].attachments.filter((e) => e.type === 'photo');
-            const links = attachPhoto.map((e) => e.photo.sizes.find((el) => el.type === 's').url);
+            const links = attachPhoto.map((e) => e.photo.sizes.find((el) => el.type === 'z').url);
             return links;
         }   
 
