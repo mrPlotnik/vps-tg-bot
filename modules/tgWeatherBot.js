@@ -13,7 +13,7 @@ const noticeBot = new TelegramBot(config.noticeTestBotToken, options);
 
 
 // Запускаем бота погоды
-function tgBotRun() {
+async function tgBotRun() {
     weatherBot.on('message', async msg => {
         // Текст сообщения. Приводим к нижнему регистру
         const text = msg.text !== undefined ? msg.text.toLowerCase() : undefined;

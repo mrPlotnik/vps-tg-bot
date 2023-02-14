@@ -1,3 +1,5 @@
+process.env["NTBA_FIX_350"] = 1;
+
 const TelegramBot = require('node-telegram-bot-api');
 const showDateOrTime = require('../helpers/showDataOrTime'); // Вывод времени в консоль
 
@@ -9,8 +11,9 @@ const options = { polling: true };
 
 const postBot = new TelegramBot(config.postBotToken, options);
 
-function tgPostBotRun() {
-
+async function listenUsers() {
+    
+    // Прослушимаем сообщения группы
     postBot.on('message', msg => {
         // Текст сообщения. Приводим к нижнему регистру
         const text = msg.text !== undefined ? msg.text.toLowerCase() : undefined;
@@ -18,7 +21,16 @@ function tgPostBotRun() {
         const chatId = msg.chat.id;   
         // Имя пользователя
         const first_name = msg.from.first_name;   
-    
+        // ID темы группы
+        let message_thread_id = 'supergroup';
+        // Название темы группы
+        let topic_name = 'supergroup';        
+
+        if (msg.message_thread_id !== undefined) {           
+            message_thread_id = msg.message_thread_id;
+            topic_name = msg.reply_to_message.forum_topic_created.name;
+        }
+        
         // username пользователя для моих уведомлений
         const username = msg.from.username; 
 
@@ -27,17 +39,36 @@ function tgPostBotRun() {
         // console.log(first_name);
         // console.log(username);     
 
-        console.log(msg);
+        // console.log(`${showDateOrTime.time()} message_thread_id = ${message_thread_id}`);
+        // console.log(`${showDateOrTime.time()} topic_name = ${topic_name}`);
+
+        return {
+            text,
+            chatId,
+            first_name,
+            message_thread_id,
+            topic_name,
+            username
+        }
 
     });    
 
-    postBot.sendMessage(config.tgGrounID, 'Дарова', { message_thread_id: 48});
-    // postBot.sendMessage(config.tgGrounID, 'Дарова', { message_id: 48});
+    // postBot.sendMessage(config.tgGroupID, 'Дарова', { message_thread_id: 48});    
+
+    console.log(`${showDateOrTime.time()} Прослушка telegram бота постинга запущена...`);
+
+}
+
+async function pro() {   
+
+    const photo = './tmp/0.jpg';
+    console.log(photo);
+    postBot.sendPhoto(config.tgGroupID, photo, {
+        caption: "I'm a bot!"
+    });
+     
+}
     
-    console.log(`${showDateOrTime.time()} Telegram бот постинга запущены...`);
 
-    return 'Telegram бот постинга что-то возврящает\n';
-
-};
-
-module.exports = tgPostBotRun;
+module.exports.listenUsers = listenUsers;
+module.exports.pro = pro;

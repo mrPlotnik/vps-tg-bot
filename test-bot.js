@@ -17,9 +17,6 @@ async function run() {
     const tgWeatherBotData = await tgWeatherBot();
     console.log(`${showDateOrTime.time()} ${tgWeatherBotData}`);
 
-    const tgPostBotData = await tgPostBot();
-    console.log(`${showDateOrTime.time()} ${tgPostBotData}`);
-
     const postData = await vkGetLastPost();
     console.log('');
     console.log(`${showDateOrTime.time()} userID = ${postData.userID}`);
@@ -27,6 +24,8 @@ async function run() {
     console.log(`${showDateOrTime.time()} lastName = ${postData.lastName}`);
     console.log(`${showDateOrTime.time()} Текст = \n${postData.text}`);
     console.log('');
+
+    const tgPostBotPro = await tgPostBot.pro();
 
 };
 

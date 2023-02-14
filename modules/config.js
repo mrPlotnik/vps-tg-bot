@@ -10,7 +10,7 @@ const noticeTestBotToken = process.env.TG_NOTICE_TEST_BOT_TOKEN;
 // Токен telegram бота постинга в группу
 const postBotToken = process.env.TG_POST_BOT_TOKEN;
 
-const tgGrounID = process.env.TG_GROUP_ID;
+const tgGroupID = process.env.TG_GROUP_ID;
 
 // VK ID Анохиной
 const vkAnohinaID = process.env.VK_ID_ANOHINA
@@ -26,7 +26,7 @@ module.exports = {
     weatherToken,
     testBotToken,
     postBotToken,
-    tgGrounID,
+    tgGroupID,
     noticeTestBotToken,
     vkAnohinaID,
     vkAnohinaUserToken,
