@@ -11,8 +11,10 @@ const config = require('./config.js');
 // Опции telegram ботов
 const options = { polling: true };
 
+//
 const postBot = new TelegramBot(config.postBotToken, options);
 
+//
 async function listenUsers() {
     
     // Прослушимаем сообщения группы
@@ -61,29 +63,39 @@ async function listenUsers() {
 
 }
 
+//
 async function sendMessage(text) {   
 
+    // Проверяем наличие директории
+    if (fs.existsSync(config.tempDir)) {
 
-  
-    fs.access("./tmp/0.jpg", function(error){
-        if (error) {
-            console.log("Файл не найден");
-        } else {
-            console.log("Файл найден");
+        console.log(`${showDateOrTime.time()} Директория для файлов есть`);
 
-            const photo = './tmp/0.jpg';
+        const media = [
+            { type: 'photo', media: './tmp/0.jpg', caption: text, parse_mode: 'HTML' },                   
+        ];
 
-            postBot.sendPhoto(config.tgGroupID, photo, {
-                caption: text
-            });
+        await postBot.sendMediaGroup(config.tgGroupID, media);
 
-        }
-    });
-    
-    
+        console.log(`${showDateOrTime.time()} Запостил в Telegram...`);
+
+    } else {
+        console.log(`${showDateOrTime.time()} Директории для файлов нет...`);       
+    }
      
 }
-    
+
+//
+async function deleteDir(path) {    
+
+    // delete directory recursively
+    fs.rm(config.tempDir, { recursive: true }, err => {
+    if (err) throw err;
+
+    console.log(`${dir} is deleted!`)
+    })
+}
 
 module.exports.listenUsers = listenUsers;
 module.exports.sendMessage = sendMessage;
+module.exports.deleteDir = deleteDir;

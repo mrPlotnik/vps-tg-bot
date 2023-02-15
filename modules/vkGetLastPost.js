@@ -43,8 +43,8 @@ async function vkGetLastPost() {
     const firstName = post.profiles[0].first_name;
     // Фамилия пользователя VK
     const lastName = post.profiles[0].last_name;
-    // Фамилия пользователя VK
-    const text = post.items[0].text;
+    // Текст поста. Обрезаем до звездочки, убираем пробелы
+    const text = post.items[0].text.split('*')[0].trim();
     
     // Проверяем наличие директории
     if (fs.existsSync(dir)) {
@@ -59,12 +59,7 @@ async function vkGetLastPost() {
     async function downloadFiles() {       
 
         // Ссылки файлов поста VK
-        const fileLinks = getPhotoLinks();
-
-        // 
-        await reduceWay((result) => {
-            console.log(`${showDateOrTime.time()} Итог: ${result}`);
-        });
+        const fileLinks = getPhotoLinks();       
 
         // Определяем ссылки файлов поста
         function getPhotoLinks() {            
@@ -74,18 +69,20 @@ async function vkGetLastPost() {
         }   
 
         // 
-        async function reduceWay(callback) {
+        await reduceWay();
+
+        // 
+        async function reduceWay() {
             // Итерируемся по массиву
             // По цепочке запускаем следующий downloadFile из метода then
             // Promise.resolve(), в качестве значения по-умолчанию, используем для первой итерации, 
             // когда никакого обещания(Promise) у нас еще нет
             await fileLinks.reduce((acc, item, index) => acc           
-                .then((param) => downloadFile(item, param, index)), Promise.resolve(`1й файл`))
-                .then((result) => { callback(result); });
+                .then((param) => writeStream(item, param, index)), Promise.resolve('скачан'))
         };                
         
         // Записываем скачанный файл в директорию
-        async function downloadFile(urls, param, index) {    
+        async function writeStream(urls, param, index) {    
 
             // GET-запрос для файла
             await axios({
@@ -96,6 +93,7 @@ async function vkGetLastPost() {
                 .then(async (response)  => { 
                     const writeStream  = response.data.pipe(fs.createWriteStream(`${dir}/${index}.jpg`));
 
+                    // Дожидаемся конца потока
                     await new Promise((resolve, reject) => {
                         writeStream.on('finish', resolve);
                         writeStream.on('error', reject);                       
@@ -106,21 +104,15 @@ async function vkGetLastPost() {
                     console.log(err);
                 });        
     
-            // этот вывод в консоль покажет порядок вызовов
+            // этот вывод в консоль покажет порядок скачивания
             console.log(`${showDateOrTime.time()} ${index + 1}й файл ${param}`);
-            return new Promise((resolve) => { resolve('скачан'); });   
+            return new Promise((resolve) => { resolve('скачан') });   
         };           
-
         
         console.log(await fs.promises.readdir('./tmp'));
         console.log(`${showDateOrTime.time()} VK файлы скачаны...`);
 
-    };    
-    
-    // fs.rmdirSync('tmp', err => {
-    //     if(err) throw err; // не удалось удалить папку
-    //     console.log('Папка успешно удалена');
-    // }); 
+    }; 
 
     return {
         userID,

@@ -17,17 +17,23 @@ async function run() {
     const tgWeatherBotData = await tgWeatherBot();
     console.log(`${showDateOrTime.time()} ${tgWeatherBotData}`);
 
-    const postData = await vkGetLastPost();
+    const pData = await vkGetLastPost();
     console.log('');
-    console.log(`${showDateOrTime.time()} userID = ${postData.userID}`);
-    console.log(`${showDateOrTime.time()} firstName = ${postData.firstName}`);
-    console.log(`${showDateOrTime.time()} lastName = ${postData.lastName}`);
-    console.log(`${showDateOrTime.time()} Текст = \n${postData.text}`);
+    console.log(`${showDateOrTime.time()} userID = ${pData.userID}`);
+    console.log(`${showDateOrTime.time()} firstName = ${pData.firstName}`);
+    console.log(`${showDateOrTime.time()} lastName = ${pData.lastName}`);
+    console.log(`${showDateOrTime.time()} Текст = \n${pData.text}`);
     console.log('');
 
-    const messageText = `${postData.text}\n${postData.userID}`;
+    //
+    const messageText = `${pData.text}
+<a href='https://vk.com/id${pData.userID}'>${pData.firstName} ${pData.lastName}</a>`;
 
-    const tgPostBotPro = await tgPostBot.sendMessage(messageText);
+    //
+    await tgPostBot.sendMessage(messageText);
+
+    //
+    await tgPostBot.deleteDir(config.tempDir);
 
 };
 

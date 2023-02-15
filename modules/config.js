@@ -22,6 +22,8 @@ const vkGroupID = process.env.VK_GROUP_ID
 // Мой telegram
 const vkMyChatId = process.env.MY_CHAT_ID;
 
+const tempDir = 'tmp';
+
 module.exports = {
     weatherToken,
     testBotToken,
@@ -32,4 +34,5 @@ module.exports = {
     vkAnohinaUserToken,
     vkGroupID,
     vkMyChatId,
+    tempDir
 };
