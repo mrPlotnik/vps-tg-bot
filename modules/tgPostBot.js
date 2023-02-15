@@ -63,22 +63,24 @@ async function listenUsers() {
 
 async function sendMessage(text) {   
 
-    // const photo = './tmp/0.jpg';
 
-    // console.log(text);
+  
+    fs.access("./tmp/0.jpg", function(error){
+        if (error) {
+            console.log("Файл не найден");
+        } else {
+            console.log("Файл найден");
 
-    const path = './tmp/0.jpg'
+            const photo = './tmp/0.jpg';
 
-    try {
-        await fs.access('test.txt', constants.F_OK);
-        console.log('file exists');
-    } catch {
-        console.error('file does not exists');
-    }
+            postBot.sendPhoto(config.tgGroupID, photo, {
+                caption: text
+            });
+
+        }
+    });
     
-    // postBot.sendPhoto(config.tgGroupID, photo, {
-    //     caption: text
-    // });
+    
      
 }
     
