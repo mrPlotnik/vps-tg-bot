@@ -80,7 +80,7 @@ async function vkGetLastPost() {
             // Promise.resolve(), в качестве значения по-умолчанию, используем для первой итерации, 
             // когда никакого обещания(Promise) у нас еще нет
             await fileLinks.reduce((acc, item, index) => acc           
-                .then((param) => downloadFile(item, param, index)), Promise.resolve(`1й выполнен`))
+                .then((param) => downloadFile(item, param, index)), Promise.resolve(`1й файл`))
                 .then((result) => { callback(result); });
         };                
         
@@ -100,15 +100,15 @@ async function vkGetLastPost() {
                         writeStream.on('finish', resolve);
                         writeStream.on('error', reject);                       
                     });
-                    console.log(`${index}й файл скачан`);
+
                 })
                 .catch((err) => {                
                     console.log(err);
                 });        
     
             // этот вывод в консоль покажет порядок вызовов
-            console.log(`${showDateOrTime.time()} ${index + 1}й запрос ${param}`);
-            return new Promise((resolve) => { resolve('выполнен'); });   
+            console.log(`${showDateOrTime.time()} ${index + 1}й файл ${param}`);
+            return new Promise((resolve) => { resolve('скачан'); });   
         };           
 
         
