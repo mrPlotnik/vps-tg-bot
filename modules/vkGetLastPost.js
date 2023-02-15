@@ -1,5 +1,4 @@
 // Библиотеки
-const { Console } = require('console');
 const fs = require('fs');
 const axios = require('axios').default;
 const { VK } = require('vk-io');
@@ -36,7 +35,6 @@ async function vkGetLastPost() {
         currentOffset = 0;       
     }; 
 
-
     // Директория для файлов VK
     const dir = 'tmp';
     // ID пользователя VK
@@ -54,58 +52,67 @@ async function vkGetLastPost() {
     } else {
         console.log(`${showDateOrTime.time()} Директории для файлов нет, создаю...`);
         fs.mkdirSync(dir);  
-        downloadFiles();     
+        await downloadFiles();     
     }            
 
     // Записываем файл в директорию хоста 
-    async function downloadFiles() {
+    async function downloadFiles() {       
 
         // Ссылки файлов поста VK
-        const fileLinks = await getPhotoLinks();
+        const fileLinks = getPhotoLinks();
 
         // 
-        reduceWay((result) => {
-            console.log(`Итог: ${result}`);
+        await reduceWay((result) => {
+            console.log(`${showDateOrTime.time()} Итог: ${result}`);
         });
 
         // Определяем ссылки файлов поста
-        async function getPhotoLinks() {
+        function getPhotoLinks() {            
             const attachPhoto = post.items[0].attachments.filter((e) => e.type === 'photo');
             const links = attachPhoto.map((e) => e.photo.sizes.find((el) => el.type === 'z').url);
             return links;
         }   
 
         // 
-        function reduceWay(callback) {
+        async function reduceWay(callback) {
             // Итерируемся по массиву
             // По цепочке запускаем следующий downloadFile из метода then
             // Promise.resolve(), в качестве значения по-умолчанию, используем для первой итерации, 
             // когда никакого обещания(Promise) у нас еще нет
-            fileLinks.reduce((acc, item, index) => acc           
+            await fileLinks.reduce((acc, item, index) => acc           
                 .then((param) => downloadFile(item, param, index)), Promise.resolve(`1й выполнен`))
                 .then((result) => { callback(result); });
         };                
         
-        // Записываем скаченный файл в директорию
-        async function downloadFile(urls, param, index) {              
+        // Записываем скачанный файл в директорию
+        async function downloadFile(urls, param, index) {    
+
             // GET-запрос для файла
             await axios({
                 method: 'get',
                 url: urls,
                 responseType: 'stream'
             })
-                .then((response) => { 
-                    response.data.pipe(fs.createWriteStream(`${dir}/${index}.jpg`));
+                .then(async (response)  => { 
+                    const writeStream  = response.data.pipe(fs.createWriteStream(`${dir}/${index}.jpg`));
+
+                    await new Promise((resolve, reject) => {
+                        writeStream.on('finish', resolve);
+                        writeStream.on('error', reject);                       
+                    });
+                    console.log(`${index}й файл скачан`);
                 })
-                .catch((error) => {                
-                    console.log(error);
+                .catch((err) => {                
+                    console.log(err);
                 });        
     
             // этот вывод в консоль покажет порядок вызовов
-            console.log(`${index + 1}й запрос ${param}`);
+            console.log(`${showDateOrTime.time()} ${index + 1}й запрос ${param}`);
             return new Promise((resolve) => { resolve('выполнен'); });   
-        };   
+        };           
 
+        
+        console.log(await fs.promises.readdir('./tmp'));
         console.log(`${showDateOrTime.time()} VK файлы скачаны...`);
 
     };    

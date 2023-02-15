@@ -25,7 +25,9 @@ async function run() {
     console.log(`${showDateOrTime.time()} Текст = \n${postData.text}`);
     console.log('');
 
-    const tgPostBotPro = await tgPostBot.pro();
+    const messageText = `${postData.text}\n${postData.userID}`;
+
+    const tgPostBotPro = await tgPostBot.sendMessage(messageText);
 
 };
 

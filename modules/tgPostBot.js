@@ -1,5 +1,7 @@
 process.env["NTBA_FIX_350"] = 1;
 
+const fs = require('fs');
+
 const TelegramBot = require('node-telegram-bot-api');
 const showDateOrTime = require('../helpers/showDataOrTime'); // Вывод времени в консоль
 
@@ -59,16 +61,27 @@ async function listenUsers() {
 
 }
 
-async function pro() {   
+async function sendMessage(text) {   
 
-    const photo = './tmp/0.jpg';
-    console.log(photo);
-    postBot.sendPhoto(config.tgGroupID, photo, {
-        caption: "I'm a bot!"
-    });
+    // const photo = './tmp/0.jpg';
+
+    // console.log(text);
+
+    const path = './tmp/0.jpg'
+
+    try {
+        await fs.access('test.txt', constants.F_OK);
+        console.log('file exists');
+    } catch {
+        console.error('file does not exists');
+    }
+    
+    // postBot.sendPhoto(config.tgGroupID, photo, {
+    //     caption: text
+    // });
      
 }
     
 
 module.exports.listenUsers = listenUsers;
-module.exports.pro = pro;
+module.exports.sendMessage = sendMessage;
