@@ -5,32 +5,43 @@ const showDateOrTime = require('./helpers/showDataOrTime');
 
 // Бот VK
 const vkGetLastPost = require('./modules/vkGetLastPost');
-// Бот Telegram Погода
-const tgWeatherBot = require('./modules/tgWeatherBot');
-// Бот Telegram Постер
+// Бот Telegram "Постер"
 const tgPostBot = require('./modules/tgPostBot');
 
-async function run() {
-  const tgWeatherBotData = await tgWeatherBot();
-  console.log(`${showDateOrTime.time()} ${tgWeatherBotData}`);
+const interval = 60000; // 60000 миллисекунд = 1 минута
 
-  const pData = await vkGetLastPost();
-  console.log('');
-  console.log(`${showDateOrTime.time()} userID = ${pData.userID}`);
-  console.log(`${showDateOrTime.time()} firstName = ${pData.firstName}`);
-  console.log(`${showDateOrTime.time()} lastName = ${pData.lastName}`);
-  console.log(`${showDateOrTime.time()} Текст = \n${pData.text}`);
-  console.log('');
+let lastPostText = '';
 
-  //
-  const messageText = `${pData.text}
-<a href='https://vk.com/id${pData.userID}'>${pData.firstName} ${pData.lastName}</a>`;
+// Прослушка пользователей
+// await tgPostBot.listenUsers();
 
-  //
-  await tgPostBot.sendMessage(messageText);
+async function rePoster() {
+  console.log(`${showDateOrTime.time()} Запустил (снова) rePoster`);
 
-  //
-  await tgPostBot.deleteDir(config.tempDir);
+  setInterval(async () => {
+    // Берем пост из vk
+    const pData = await vkGetLastPost();
+
+    // if (pData.text === '') {
+    //   console.log('pro');
+    // }
+
+    // Формируем для tg текст для поста
+    const messageText = `${pData.text}<a href='https://vk.com/id${pData.userID}'> ${pData.firstName} ${pData.lastName}</a>`;
+
+    // Проверка, что это не тот же самый пост
+    if (lastPostText === messageText) {
+      console.log(`${showDateOrTime.time()} Тот же самый пост`);
+      rePoster();
+    } else {
+      lastPostText = messageText;
+      // Постим в tg
+      await tgPostBot.sendMessage(messageText);
+      console.log(`${showDateOrTime.time()} Пост опубликован`);
+    }
+    // Очищаем временную папкe для изображений
+    await tgPostBot.deleteDir(config.tempDir);
+  }, interval);
 }
 
-run();
+rePoster();

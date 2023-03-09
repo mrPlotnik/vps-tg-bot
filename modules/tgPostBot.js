@@ -12,7 +12,7 @@ const config = require('./config');
 const options = { polling: true };
 
 //
-const postBot = new TelegramBot(config.postBotToken, options);
+const postBot = new TelegramBot(config.tgPostBotToken, options);
 
 //
 async function listenUsers() {
@@ -42,8 +42,8 @@ async function listenUsers() {
     // console.log(firstName);
     // console.log(username);
 
-    // console.log(`${showDateOrTime.time()} messageThreadId = ${messageThreadId}`);
-    // console.log(`${showDateOrTime.time()} topicName = ${topicName}`);
+    console.log(`${showDateOrTime.time()} messageThreadId = ${messageThreadId}`);
+    console.log(`${showDateOrTime.time()} topicName = ${topicName}`);
 
     return {
       text,
@@ -55,28 +55,34 @@ async function listenUsers() {
     };
   });
 
-  // postBot.sendMessage(config.tgGroupID, 'Дарова', { messageThreadId: 48});
+  // postBot.sendMessage(config.tgGroupID, 'Дарова', { messageThreadId: 48 });
 
   console.log(`${showDateOrTime.time()} Прослушка telegram бота постинга запущена...`);
 }
 
 //
 async function sendMessage(text) {
+  console.log(text);
   // Проверяем наличие директории
   if (fs.existsSync(config.tempDir)) {
     console.log(`${showDateOrTime.time()} Директория для файлов есть`);
 
+    // https://core.telegram.org/bots/api#sendmediagroup
     const media = [
       {
         type: 'photo', media: './tmp/0.jpg', caption: text, parse_mode: 'HTML',
       },
     ];
-
     await postBot.sendMediaGroup(config.tgGroupID, media);
-
-    console.log(`${showDateOrTime.time()} Запостил в Telegram...`);
+    // console.log(`${showDateOrTime.time()} Запостил в Telegram...`);
   } else {
     console.log(`${showDateOrTime.time()} Директории для файлов нет...`);
+    const media = [
+      {
+        type: 'photo', caption: text, parse_mode: 'HTML',
+      },
+    ];
+    await postBot.sendMediaGroup(config.tgGroupID, media);
   }
 }
 

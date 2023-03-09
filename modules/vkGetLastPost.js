@@ -1,5 +1,4 @@
 // Библиотеки
-
 const fs = require('fs');
 const axios = require('axios').default;
 const { VK } = require('vk-io');
@@ -11,11 +10,12 @@ const config = require('./config');
 // Создаем VK бота
 const vk = new VK({ token: config.vkAnohinaUserToken });
 
+// Смещение, на случай, если это Анохина или кто-то еще из исключения
 let currentOffset = 0;
 
 // Берем посты со стены группы VK
 async function vkGetLastPost() {
-  console.log(`${showDateOrTime.time()} VK бот запущен...`);
+  console.log(`${showDateOrTime.time()} VK бот. Запускаю...`);
 
   // Опрашиваем стену сообщества
   const post = await vk.api.wall.get({
@@ -24,6 +24,8 @@ async function vkGetLastPost() {
     count: 1, // сколько записей получаем
     extended: 1, // дополнительные поля
   });
+
+  // console.log(post);
 
   // Если это Анохина или еще кто-то,
   if (post.profiles[0].id === config.vkAnohinaID) {
@@ -34,16 +36,15 @@ async function vkGetLastPost() {
     currentOffset = 0;
   }
 
-  // Директория для файлов VK
-  const dir = 'tmp';
   // ID пользователя VK
-  const userID = post.profiles[0].id;
+  const userID = post.items[0].signer_id;
   // Имя пользователя VK
-  const firstName = post.profiles[0].first_name;
+  const firstName = post.profiles.find((x) => x.id === userID).first_name;
   // Фамилия пользователя VK
-  const lastName = post.profiles[0].last_name;
+  const lastName = post.profiles.find((x) => x.id === userID).last_name;
   // Текст поста. Обрезаем до звездочки, убираем пробелы
-  const text = post.items[0].text.split('*')[0].trim();
+  const tempText = post.items[0].text ? post.items[0].text : '';
+  const text = tempText.split('*')[0].trim();
 
   // Записываем файл в директорию хоста
   async function downloadFiles() {
@@ -68,7 +69,7 @@ async function vkGetLastPost() {
           responseType: 'stream',
         })
           .then(async (response) => {
-            const wStream = response.data.pipe(fs.createWriteStream(`${dir}/${index}.jpg`));
+            const wStream = response.data.pipe(fs.createWriteStream(`${config.tempDir}/${index}.jpg`));
 
             // Дожидаемся конца потока
             await new Promise((resolve, reject) => {
@@ -81,7 +82,7 @@ async function vkGetLastPost() {
           });
 
         // этот вывод в консоль покажет порядок скачивания
-        console.log(`${showDateOrTime.time()} ${index + 1}й файл ${param}`);
+        // console.log(`${showDateOrTime.time()} ${index + 1}й файл ${param}`);
         return new Promise((resolve) => { resolve('скачан'); });
       }
 
@@ -95,16 +96,16 @@ async function vkGetLastPost() {
     //
     await reduceWay();
 
-    console.log(await fs.promises.readdir('./tmp'));
-    console.log(`${showDateOrTime.time()} VK файлы скачаны...`);
+    // console.log(await fs.promises.readdir('./tmp'));
+    // console.log(`${showDateOrTime.time()} VK файлы скачаны...`);
   }
 
   // Проверяем наличие директории
-  if (fs.existsSync(dir)) {
-    console.log(`${showDateOrTime.time()} Директория для файлов есть`);
+  if (fs.existsSync(config.tempDir)) {
+    // console.log(`${showDateOrTime.time()} Директория для файлов есть`);
   } else {
-    console.log(`${showDateOrTime.time()} Директории для файлов нет, создаю...`);
-    fs.mkdirSync(dir);
+    // console.log(`${showDateOrTime.time()} Директории для файлов нет, создаю...`);
+    fs.mkdirSync(config.tempDir);
     await downloadFiles();
   }
 

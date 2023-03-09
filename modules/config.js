@@ -1,3 +1,4 @@
+require('dotenv').config();
 // Токен запроса погоды
 const weatherToken = process.env.WEATHER_TOKEN;
 
@@ -5,8 +6,8 @@ const weatherToken = process.env.WEATHER_TOKEN;
 const testBotToken = process.env.TG_TEST_BOT_TOKEN;
 // Токен тестового telegram бота уведомлений
 const noticeTestBotToken = process.env.TG_NOTICE_TEST_BOT_TOKEN;
-// Токен telegram бота постинга в группу
-const postBotToken = process.env.TG_POST_BOT_TOKEN;
+// Токен telegram бота постинга в группу "Куплю Продам"
+const tgPostBotToken = process.env.TG_POST_BOT_TOKEN;
 
 const tgGroupID = process.env.TG_GROUP_ID;
 
@@ -25,7 +26,7 @@ const tempDir = 'tmp';
 module.exports = {
   weatherToken,
   testBotToken,
-  postBotToken,
+  tgPostBotToken,
   tgGroupID,
   noticeTestBotToken,
   vkAnohinaID,
