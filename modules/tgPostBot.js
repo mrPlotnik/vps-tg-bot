@@ -1,23 +1,20 @@
+/* eslint-disable no-console */
 process.env.NTBA_FIX_350 = 1;
 
-const fs = require('fs');
-
-const TelegramBot = require('node-telegram-bot-api');
+const fs = require('fs'); // Библиотека для работы с файловой системой
+const TgBot = require('node-telegram-bot-api'); // Библиотека для создания tg бота
 const showDateOrTime = require('../helpers/showDataOrTime'); // Вывод времени в консоль
+const config = require('./config'); // Подключение всех токенов и ID
 
-// Подключение всех токенов, все ID
-const config = require('./config');
+const options = { polling: true };// Опции telegram ботов
 
-// Опции telegram ботов
-const options = { polling: true };
+// Создаем экземпляр бота
+const bot = new TgBot(config.tgPostBotToken, options);
 
-//
-const postBot = new TelegramBot(config.tgPostBotToken, options);
-
-//
+// Прослушка пользователей
 async function listenUsers() {
   // Прослушимаем сообщения группы
-  postBot.on('message', (msg) => {
+  bot.on('message', (msg) => {
     // Текст сообщения. Приводим к нижнему регистру
     const text = msg.text !== undefined ? msg.text.toLowerCase() : undefined;
     // ID чата с пользователем
@@ -55,47 +52,63 @@ async function listenUsers() {
     };
   });
 
-  // postBot.sendMessage(config.tgGroupID, 'Дарова', { messageThreadId: 48 });
+  // bot.sendMessage(config.tgGroupID, 'Дарова', { messageThreadId: 48 });
 
   console.log(`${showDateOrTime.time()} Прослушка telegram бота постинга запущена...`);
 }
 
-//
-async function sendMessage(text) {
-  console.log(text);
-  // Проверяем наличие директории
-  if (fs.existsSync(config.tempDir)) {
-    console.log(`${showDateOrTime.time()} Директория для файлов есть`);
+// Функция для отправки сообщения
+async function sendMessage(text, links) {
+  // Если ссылки на изображения есть
+  if (links) {
+    // const media = [
+    //   {
+    //     type: 'photo', media: './tmp/0.jpg',
+    //   },
+    //   {
+    //     type: 'photo', media: './tmp/1.jpg',
+    //   },
+    //   {
+    //     type: 'photo', media: './tmp/2.jpg',
+    //   },
+    //   {
+    //     type: 'photo', media: './tmp/3.jpg',
+    //   },
+    //   {
+    //     type: 'photo', media: './tmp/4.jpg',
+    //   },
+    //   {
+    //     type: 'photo', media: './tmp/5.jpg', caption: text, parse_mode: 'HTML',
+    //   },
+    // ];
+
+    const media = [];
+    // Создаем массив для отправки
+    links.forEach((x, i) => {
+      media.push({
+        type: 'photo',
+        media: `./tmp/${i}.jpg`,
+      });
+    });
+
+    media[media.length - 1].caption = text;
+    media[media.length - 1].parse_mode = 'HTML';
 
     // https://core.telegram.org/bots/api#sendmediagroup
-    const media = [
-      {
-        type: 'photo', media: './tmp/0.jpg', caption: text, parse_mode: 'HTML',
-      },
-    ];
-    await postBot.sendMediaGroup(config.tgGroupID, media);
-    // console.log(`${showDateOrTime.time()} Запостил в Telegram...`);
+    // Отправляем сообщение в группу
+    await bot.sendMediaGroup(config.tgGroupID, media);
+    // Рекурсивное удаление директории
+    fs.rm(config.tempDir, { recursive: true }, (err) => {
+      if (err) throw err;
+      console.log(`${showDateOrTime.time()} ${config.tempDir} is deleted!`);
+    });
   } else {
-    console.log(`${showDateOrTime.time()} Директории для файлов нет...`);
-    const media = [
-      {
-        type: 'photo', caption: text, parse_mode: 'HTML',
-      },
-    ];
-    await postBot.sendMediaGroup(config.tgGroupID, media);
+    // console.log('Ссылок нет');
+    // console.log(`${showDateOrTime.time()} Директории для файлов нет...`);
+    await bot.sendMessage(config.tgGroupID, text, { parse_mode: 'HTML' });
+    console.log(`${showDateOrTime.time()} Пост опубликован`);
   }
-}
-
-//
-async function deleteDir() {
-  // delete directory recursively
-  fs.rm(config.tempDir, { recursive: true }, (err) => {
-    if (err) throw err;
-
-    console.log(`${config.tempDir} is deleted!`);
-  });
 }
 
 module.exports.listenUsers = listenUsers;
 module.exports.sendMessage = sendMessage;
-module.exports.deleteDir = deleteDir;

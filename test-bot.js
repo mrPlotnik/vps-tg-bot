@@ -1,47 +1,41 @@
-// Подключение всех токенов, все ID
-const config = require('./modules/config');
-// Вывод времени в консоль
-const showDateOrTime = require('./helpers/showDataOrTime');
+const showDateOrTime = require('./helpers/showDataOrTime'); // Вывод времени в консоль
+const vkBot = require('./modules/vkGetLastPost'); // Бот vk
+const tgBot = require('./modules/tgPostBot'); // Бот tg "Постер"
 
-// Бот VK
-const vkGetLastPost = require('./modules/vkGetLastPost');
-// Бот Telegram "Постер"
-const tgPostBot = require('./modules/tgPostBot');
+const interval = 30000; // 60000 миллисекунд = 1 минута
 
-const interval = 60000; // 60000 миллисекунд = 1 минута
-
-let lastPostText = '';
+let lastPostText = ''; // Для проверки уникальности поста
 
 // Прослушка пользователей
-// await tgPostBot.listenUsers();
+// await tgBot.listenUsers();
 
-async function rePoster() {
-  console.log(`${showDateOrTime.time()} Запустил (снова) rePoster`);
+setInterval(async () => {
+  // Берем пост из vk
+  const data = await vkBot.getLastPost();
 
-  setInterval(async () => {
-    // Берем пост из vk
-    const pData = await vkGetLastPost();
+  let { text } = data;
 
-    // if (pData.text === '') {
-    //   console.log('pro');
-    // }
+  if (text.length > 970) {
+    text = `${text.slice(0, 970)} (...)`;
+  }
 
-    // Формируем для tg текст для поста
-    const messageText = `${pData.text}<a href='https://vk.com/id${pData.userID}'> ${pData.firstName} ${pData.lastName}</a>`;
+  // Формируем для tg текст для поста
+  const messageText = `${text}\n<a href='https://vk.com/id${data.userID}'>${data.firstName} ${data.lastName}</a>`;
 
-    // Проверка, что это не тот же самый пост
-    if (lastPostText === messageText) {
-      console.log(`${showDateOrTime.time()} Тот же самый пост`);
-      rePoster();
-    } else {
-      lastPostText = messageText;
-      // Постим в tg
-      await tgPostBot.sendMessage(messageText);
-      console.log(`${showDateOrTime.time()} Пост опубликован`);
+  // Проверка, что это не тот же самый пост
+  if (lastPostText === messageText) {
+    console.log(`${showDateOrTime.time()} Тот же самый пост`);
+
+  // Если пост уникальный
+  } else {
+    lastPostText = messageText;
+
+    // Если есть изображения, то скачиваем их
+    if (data.photoLinks) {
+      await vkBot.download(data.photoLinks);
     }
-    // Очищаем временную папкe для изображений
-    await tgPostBot.deleteDir(config.tempDir);
-  }, interval);
-}
 
-rePoster();
+    // Постим в tg
+    await tgBot.sendMessage(messageText, data.photoLinks);
+  }
+}, interval);

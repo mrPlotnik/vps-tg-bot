@@ -4,7 +4,7 @@
   "description": "",
   "main": "main-bot.js",
   "scripts": {
-    "test": "nodemon test-bot.js",
+    "test": "clear && nodemon test-bot.js",
     "main": "nodemon main-bot.js",
     "start": "node main-bot.js"
   },
