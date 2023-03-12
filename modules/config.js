@@ -1,37 +1,33 @@
 require('dotenv').config();
-// Токен запроса погоды
-const weatherToken = process.env.WEATHER_TOKEN;
-
-// Токен тестового telegram бота погоды
-const testBotToken = process.env.TG_TEST_BOT_TOKEN;
-// Токен тестового telegram бота уведомлений
-const noticeTestBotToken = process.env.TG_NOTICE_TEST_BOT_TOKEN;
-// Токен telegram бота постинга в группу "Куплю Продам"
+// tg токен бота постинга в группу "Куплю Продам"
 const tgPostBotToken = process.env.TG_POST_BOT_TOKEN;
-
+// id группы "Куплю Продам" в tg
 const tgGroupID = process.env.TG_GROUP_ID;
 
-// VK ID Анохиной
+const myChatId = process.env.MY_CHAT_ID;
+
+// vk id Анохиной
 const vkAnohinaID = process.env.VK_ID_ANOHINA;
-// Токен VK Анохиной
+// vk токен Анохиной
 const vkAnohinaUserToken = process.env.VK_ANOHINA_USER_TOKEN;
-// ID группы куплю/продам
+// vk id группы куплю/продам
 const vkGroupID = process.env.VK_GROUP_ID;
 
-// Мой telegram
-const vkMyChatId = process.env.MY_CHAT_ID;
-
+// Куда сохраняем временные файлы
 const tempDir = 'tmp';
+// Переодичность опроса стены. 60000 миллисекунд = 1 минута
+const interval = 30000;
+// Обрезка текста. Максимально 1024 символа
+const slice = 970;
 
 module.exports = {
-  weatherToken,
-  testBotToken,
   tgPostBotToken,
   tgGroupID,
-  noticeTestBotToken,
+  myChatId,
   vkAnohinaID,
   vkAnohinaUserToken,
   vkGroupID,
-  vkMyChatId,
   tempDir,
+  interval,
+  slice,
 };

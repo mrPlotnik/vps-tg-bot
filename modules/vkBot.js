@@ -25,6 +25,8 @@ async function getLastPost() {
     console.log(`${showDateOrTime.time()} Это ${post.profiles[0].last_name}, пропускаем`);
   }
 
+  // Hash
+  const { hash } = post.items[0];
   // ID пользователя VK
   const userID = post.items[0].signer_id;
   // Вложения
@@ -75,6 +77,7 @@ async function getLastPost() {
     lastName,
     text,
     photoLinks,
+    hash,
   };
 }
 
@@ -98,7 +101,6 @@ async function downloadFiles(photoLinks) {
       })
       .catch(() => {
         console.log('Ошибка axios');
-        // console.log(err);
       });
 
     // этот вывод в консоль покажет порядок скачивания

@@ -34,11 +34,6 @@ async function listenUsers() {
     // username пользователя для моих уведомлений
     const { username } = msg.from;
 
-    // console.log(text);
-    // console.log(chatId);
-    // console.log(firstName);
-    // console.log(username);
-
     console.log(`${showDateOrTime.time()} messageThreadId = ${messageThreadId}`);
     console.log(`${showDateOrTime.time()} topicName = ${topicName}`);
 
@@ -53,35 +48,19 @@ async function listenUsers() {
   });
 
   // bot.sendMessage(config.tgGroupID, 'Дарова', { messageThreadId: 48 });
+  // bot.sendMessage(config.tgGroupID, 'Дарова');
 
   console.log(`${showDateOrTime.time()} Прослушка telegram бота постинга запущена...`);
+}
+
+async function noticeMessage(text) {
+  await bot.sendMessage(config.myChatId, text);
 }
 
 // Функция для отправки сообщения
 async function sendMessage(text, links) {
   // Если ссылки на изображения есть
   if (links) {
-    // const media = [
-    //   {
-    //     type: 'photo', media: './tmp/0.jpg',
-    //   },
-    //   {
-    //     type: 'photo', media: './tmp/1.jpg',
-    //   },
-    //   {
-    //     type: 'photo', media: './tmp/2.jpg',
-    //   },
-    //   {
-    //     type: 'photo', media: './tmp/3.jpg',
-    //   },
-    //   {
-    //     type: 'photo', media: './tmp/4.jpg',
-    //   },
-    //   {
-    //     type: 'photo', media: './tmp/5.jpg', caption: text, parse_mode: 'HTML',
-    //   },
-    // ];
-
     const media = [];
     // Создаем массив для отправки
     links.forEach((x, i) => {
@@ -97,18 +76,21 @@ async function sendMessage(text, links) {
     // https://core.telegram.org/bots/api#sendmediagroup
     // Отправляем сообщение в группу
     await bot.sendMediaGroup(config.tgGroupID, media);
+
     // Рекурсивное удаление директории
     fs.rm(config.tempDir, { recursive: true }, (err) => {
       if (err) throw err;
       console.log(`${showDateOrTime.time()} ${config.tempDir} is deleted!`);
     });
+    // Отправить мне уведомление
+    await noticeMessage('Новый пост!');
   } else {
-    // console.log('Ссылок нет');
-    // console.log(`${showDateOrTime.time()} Директории для файлов нет...`);
     await bot.sendMessage(config.tgGroupID, text, { parse_mode: 'HTML' });
-    console.log(`${showDateOrTime.time()} Пост опубликован`);
+    // Отправить мне уведомление
+    await noticeMessage('Новый пост!');
   }
 }
 
 module.exports.listenUsers = listenUsers;
 module.exports.sendMessage = sendMessage;
+module.exports.noticeMessage = noticeMessage;

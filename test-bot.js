@@ -1,41 +1,48 @@
 const showDateOrTime = require('./helpers/showDataOrTime'); // Вывод времени в консоль
-const vkBot = require('./modules/vkGetLastPost'); // Бот vk
-const tgBot = require('./modules/tgPostBot'); // Бот tg "Постер"
+const { foundWord } = require('./helpers/exceptionWords');
+const config = require('./modules/config');// Подключение всех токенов, все ID
+const vkBot = require('./modules/vkBot'); // Бот vk
+const tgBot = require('./modules/tgBot'); // Бот tg "Постер"
 
-const interval = 30000; // 60000 миллисекунд = 1 минута
-
-let lastPostText = ''; // Для проверки уникальности поста
+let lastPostHash = ''; // Для проверки уникальности поста
 
 // Прослушка пользователей
-// await tgBot.listenUsers();
+// tgBot.listenUsers();
 
 setInterval(async () => {
   // Берем пост из vk
-  const data = await vkBot.getLastPost();
+  const post = await vkBot.getLastPost();
 
-  let { text } = data;
-
-  if (text.length > 970) {
-    text = `${text.slice(0, 970)} (...)`;
-  }
-
-  // Формируем для tg текст для поста
-  const messageText = `${text}\n<a href='https://vk.com/id${data.userID}'>${data.firstName} ${data.lastName}</a>`;
+  // Текст поста
+  let { text } = post;
 
   // Проверка, что это не тот же самый пост
-  if (lastPostText === messageText) {
+  if (lastPostHash === post.hash) {
     console.log(`${showDateOrTime.time()} Тот же самый пост`);
-
-  // Если пост уникальный
   } else {
-    lastPostText = messageText;
+    lastPostHash = post.hash;
 
-    // Если есть изображения, то скачиваем их
-    if (data.photoLinks) {
-      await vkBot.download(data.photoLinks);
+    // Проверяем на слова-исключения
+    const exeptionWord = await foundWord(text);
+
+    if (exeptionWord.length === 0) {
+      // Обрезаем текст, если он есть
+      if (text.length > config.slice) {
+        text = `${text.slice(0, config.slice)} (...)`;
+      }
+
+      // Если есть изображения, то скачиваем их
+      if (post.photoLinks) {
+        await vkBot.download(post.photoLinks);
+      }
+
+      // Формируем для tg текст для поста
+      const messageText = `${text}\n<a href='https://vk.com/id${post.userID}'>${post.firstName} ${post.lastName}</a>`;
+
+      // Постим в tg
+      await tgBot.sendMessage(messageText, post.photoLinks);
+    } else {
+      await tgBot.noticeMessage(`Не прошло, искл: ${exeptionWord.join(', ')}.`);
     }
-
-    // Постим в tg
-    await tgBot.sendMessage(messageText, data.photoLinks);
   }
-}, interval);
+}, config.interval);
