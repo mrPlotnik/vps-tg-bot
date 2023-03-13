@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 // Библиотеки
-const fs = require('fs');
 const axios = require('axios').default;
 const { VK } = require('vk-io');
+const fsActions = require('../helpers/fsActions');
 const showDateOrTime = require('../helpers/showDataOrTime'); // Вывод времени в консоль
 
 // Подключение всех токенов, все ID
@@ -90,17 +90,14 @@ async function downloadFiles(photoLinks) {
       url: urls,
       responseType: 'stream',
     })
-      .then(async (response) => {
-        const wStream = response.data.pipe(fs.createWriteStream(`${config.tempDir}/${index}.jpg`));
-
-        // Дожидаемся конца потока
-        await new Promise((resolve, reject) => {
-          wStream.on('finish', resolve);
-          wStream.on('error', reject);
-        });
+      .then((response) => {
+        // Скачивание файлов
+        fsActions.downloadImgs(response, index);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err.code);
         console.log('Ошибка axios');
+        // fsActions.deleteDir();
       });
 
     // этот вывод в консоль покажет порядок скачивания
@@ -118,8 +115,10 @@ async function downloadFiles(photoLinks) {
 
 // Сохраняем изображения
 async function download(photoLinks) {
+  //
+  // await fsActions.deleteDir();
   // Создаем директорию
-  fs.mkdirSync(config.tempDir);
+  await fsActions.createDir();
   // Скачиваем все файлы по ссылкам
   await downloadFiles(photoLinks);
   // console.log(await fs.promises.readdir('./tmp'));

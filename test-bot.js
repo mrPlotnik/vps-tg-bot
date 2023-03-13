@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const showDateOrTime = require('./helpers/showDataOrTime'); // Вывод времени в консоль
 const { foundWord } = require('./helpers/exceptionWords');
 const config = require('./modules/config');// Подключение всех токенов, все ID

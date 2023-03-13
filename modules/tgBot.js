@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 process.env.NTBA_FIX_350 = 1;
 
-const fs = require('fs'); // Библиотека для работы с файловой системой
 const TgBot = require('node-telegram-bot-api'); // Библиотека для создания tg бота
 const showDateOrTime = require('../helpers/showDataOrTime'); // Вывод времени в консоль
 const config = require('./config'); // Подключение всех токенов и ID
@@ -75,20 +74,22 @@ async function sendMessage(text, links) {
 
     // https://core.telegram.org/bots/api#sendmediagroup
     // Отправляем сообщение в группу
-    await bot.sendMediaGroup(config.tgGroupID, media);
-
-    // Рекурсивное удаление директории
-    fs.rm(config.tempDir, { recursive: true }, (err) => {
-      if (err) throw err;
-      console.log(`${showDateOrTime.time()} ${config.tempDir} is deleted!`);
-    });
-    // Отправить мне уведомление
-    await noticeMessage('Новый пост!');
+    await bot.sendMediaGroup(config.myChatId, media)
+      .then(() => {
+        // Отправить мне уведомление
+        noticeMessage('Новый пост!');
+      })
+      .catch((err) => {
+        // console.log(error);
+        console.log(err.code);
+        console.log(err.response.body);
+      });
   } else {
     await bot.sendMessage(config.tgGroupID, text, { parse_mode: 'HTML' });
     // Отправить мне уведомление
     await noticeMessage('Новый пост!');
   }
+  console.log('pro');
 }
 
 module.exports.listenUsers = listenUsers;
