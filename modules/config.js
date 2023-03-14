@@ -16,9 +16,9 @@ const vkGroupID = process.env.VK_GROUP_ID;
 // Куда сохраняем временные файлы
 const tempDir = 'tmp';
 // Переодичность опроса стены. 60000 миллисекунд = 1 минута
-const interval = 1000;
+const interval = 30000;
 // Обрезка текста. Максимально 1024 символа
-const slice = 970;
+const symbols = 970;
 
 module.exports = {
   tgPostBotToken,
@@ -29,5 +29,5 @@ module.exports = {
   vkGroupID,
   tempDir,
   interval,
-  slice,
+  symbols,
 };

@@ -6,23 +6,16 @@ const showDateOrTime = require('./showDataOrTime'); // Вывод времени
 
 module.exports = {
   // Рекурсивное удаление директории
-  async deleteDir() {
-    fs.stat(config.tempDir, (err) => {
-      if (!err) {
-        fs.rmSync(config.tempDir, { recursive: true });
-        console.log(`${showDateOrTime.time()} ${config.tempDir} is deleted!`);
-      }
-    });
+  deleteDir() {
+    if (fs.existsSync(config.tempDir)) {
+      fs.rmSync(config.tempDir, { recursive: true });
+      console.log(`${showDateOrTime.time()} ${config.tempDir} is deleted!`);
+    }
   },
 
   // Создание директории
-  async createDir() {
-    fs.mkdirSync(config.tempDir, { recursive: true }, (err) => {
-      if (err) {
-        console.log('Ошибка!');
-        // console.log(err.code);
-      }
-    });
+  createDir() {
+    fs.mkdirSync(config.tempDir);
   },
 
   // Скачивание файлов

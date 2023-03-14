@@ -10,7 +10,7 @@ let lastPostHash = ''; // Для проверки уникальности по�
 // Прослушка пользователей
 // tgBot.listenUsers();
 
-setInterval(async () => {
+async function startBots() {
   // Берем пост из vk
   const post = await vkBot.getLastPost();
 
@@ -26,24 +26,36 @@ setInterval(async () => {
     // Проверяем на слова-исключения
     const exeptionWord = await foundWord(text);
 
+    // Если слов-исключений нет
     if (exeptionWord.length === 0) {
-      // Обрезаем текст, если он есть
-      if (text.length > config.slice) {
-        text = `${text.slice(0, config.slice)} (...)`;
+      // Если длина текста превышает допустимое количесво символов
+      if (text.length > config.symbols) {
+        // То обрезаем текст
+        text = `${text.slice(0, config.symbols)} (...)`;
       }
 
-      // Если есть изображения, то скачиваем их
+      // Если есть изображения
       if (post.photoLinks) {
+        // То скачиваем их
         await vkBot.download(post.photoLinks);
       }
 
-      // Формируем для tg текст для поста
+      // Формируем для tg текст поста
       const messageText = `${text}\n<a href='https://vk.com/id${post.userID}'>${post.firstName} ${post.lastName}</a>`;
 
       // Постим в tg
       await tgBot.sendMessage(messageText, post.photoLinks);
     } else {
+      // Если есть слова исключение, отправляем уведомление
+      console.log(exeptionWord);
       await tgBot.noticeMessage(`Не прошло, искл: ${exeptionWord.join(', ')}.`);
     }
   }
-}, config.interval);
+}
+
+async function run() {
+  await startBots();
+  setInterval(startBots, config.interval);
+}
+
+run();

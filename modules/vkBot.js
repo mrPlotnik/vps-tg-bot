@@ -2,11 +2,10 @@
 // Библиотеки
 const axios = require('axios').default;
 const { VK } = require('vk-io');
-const fsActions = require('../helpers/fsActions');
+const fsActions = require('../helpers/fsActions'); // Действия с файловой системой
 const showDateOrTime = require('../helpers/showDataOrTime'); // Вывод времени в консоль
 
-// Подключение всех токенов, все ID
-const config = require('./config');
+const config = require('./config'); // Подключение всех токенов, все ID
 
 // Создаем VK бота
 const vk = new VK({ token: config.vkAnohinaUserToken });
@@ -20,28 +19,30 @@ async function getLastPost() {
     extended: 1, // дополнительные поля
   });
 
-  // Если это Анохина или еще кто-то,
+  // Проверяем на ID-исключения,
   if (post.profiles[0].id === config.vkAnohinaID) {
     console.log(`${showDateOrTime.time()} Это ${post.profiles[0].last_name}, пропускаем`);
   }
 
   // Hash
   const { hash } = post.items[0];
-  // ID пользователя VK
+  // ID пользователя vk
   const userID = post.items[0].signer_id;
   // Вложения
   const allAttach = post.items[0].attachments;
+  // Длина вложений
   const allAttachLength = allAttach.length;
   // Текст поста
   const tempText = post.items[0].text ? post.items[0].text : '';
 
-  // Имя пользователя VK
+  // Имя пользователя vk
   const firstName = post.profiles.find((x) => x.id === userID).first_name;
-  // Фамилия пользователя VK
+  // Фамилия пользователя vk
   const lastName = post.profiles.find((x) => x.id === userID).last_name;
-  // Текст поста. Обрезаем до звездочки, убираем пробелы
+  // Текст поста. Обрезаем до звездочек, убираем пробелы
   const text = tempText.split('**')[0].trim();
 
+  // Находим самые качественные изображения
   function getMaxPhotoSize(sizes) {
     // console.log(sizes);
     let maxPhotoSize = 0;
@@ -56,7 +57,7 @@ async function getLastPost() {
     return maxPhoto;
   }
 
-  //
+  // Берем ссылки на все изображения
   function getPhotoLinks() {
     if (allAttachLength) {
       const attachPhoto = allAttach.filter((e) => e.type === 'photo');
@@ -81,7 +82,7 @@ async function getLastPost() {
   };
 }
 
-// Записываем изображения в директорию хоста
+// Записываем изображения на хост
 async function downloadFiles(photoLinks) {
   // Записываем скачанный файл в директорию
   async function writeStream(urls, param, index) {
@@ -90,14 +91,12 @@ async function downloadFiles(photoLinks) {
       url: urls,
       responseType: 'stream',
     })
-      .then((response) => {
+      .then(async (response) => {
         // Скачивание файлов
-        fsActions.downloadImgs(response, index);
+        await fsActions.downloadImgs(response, index);
       })
       .catch((err) => {
         console.log(err.code);
-        console.log('Ошибка axios');
-        // fsActions.deleteDir();
       });
 
     // этот вывод в консоль покажет порядок скачивания
@@ -115,13 +114,12 @@ async function downloadFiles(photoLinks) {
 
 // Сохраняем изображения
 async function download(photoLinks) {
-  //
-  // await fsActions.deleteDir();
+  // Очищаем директорию
+  fsActions.deleteDir();
   // Создаем директорию
-  await fsActions.createDir();
+  fsActions.createDir();
   // Скачиваем все файлы по ссылкам
   await downloadFiles(photoLinks);
-  // console.log(await fs.promises.readdir('./tmp'));
   console.log(`${showDateOrTime.time()} VK файлы скачаны...`);
 }
 
