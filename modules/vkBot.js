@@ -16,6 +16,7 @@ async function getLastPost() {
   const post = await vk.api.wall.get({
     owner_id: config.vkGroupID, // идентификатор сообщества
     count: 1, // сколько записей получаем
+    offset: 1, //
     extended: 1, // дополнительные поля
   });
 
