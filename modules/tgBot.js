@@ -10,12 +10,12 @@ const options = { polling: true };// Опции telegram ботов
 // Создаем экземпляр бота
 const bot = new TgBot(config.tgPostBotToken, options);
 
-// Отправить уведомление
-async function noticeMessage(text) {
-  await bot.sendMessage(config.myChatId, text);
-}
-
 module.exports = {
+  // Отправить уведомление
+  async noticeMessage(text) {
+    await bot.sendMessage(config.myChatId, text);
+  },
+
   // Прослушка пользователей
   async listenUsers() {
     // Прослушимаем сообщения группы
