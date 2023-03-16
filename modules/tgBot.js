@@ -78,7 +78,7 @@ module.exports = {
       // Отправляем сообщение в группу
       await bot.sendMediaGroup(config.tgGroupID, media)
         .then(() => {
-          noticeMessage('Новый пост!');
+          this.noticeMessage('Новый пост!');
         })
         .catch((err) => {
           console.log(err.code);
@@ -87,7 +87,7 @@ module.exports = {
     } else {
       // Если пост без изображений
       await bot.sendMessage(config.tgGroupID, text, { parse_mode: 'HTML' });
-      await noticeMessage('Новый пост!');
+      await this.noticeMessage('Новый пост!');
     }
   },
 };
