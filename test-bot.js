@@ -19,7 +19,7 @@ async function startBots() {
 
   // Проверка, что это не тот же самый пост
   if (lastPostHash === post.hash) {
-    console.log(`${showDateOrTime.time()} Тот же самый пост`);
+    console.log(`${showDateOrTime.time()} The same post`);
   } else {
     lastPostHash = post.hash;
 
