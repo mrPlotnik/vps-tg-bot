@@ -121,7 +121,7 @@ async function download(photoLinks) {
   fsActions.createDir();
   // Скачиваем все файлы по ссылкам
   await downloadFiles(photoLinks);
-  console.log(`${showDateOrTime.time()} VK файлы скачаны...`);
+  console.log(`${showDateOrTime.time()} VK files downloaded...`);
 }
 
 module.exports.getLastPost = getLastPost;
